@@ -1,0 +1,125 @@
+<div class="page">
+
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Dashboard</h1>
+      <p class="page-subtitle">Your financial overview at a glance</p>
+    </div>
+    <a routerLink="/transactions" class="btn-primary">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M7 1V13M1 7H13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      Add Transaction
+    </a>
+  </div>
+
+  <!-- ─── Stat Cards ─────────────────────────────────────────────────────── -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-label">Net Balance</div>
+      <div class="stat-value num" [class.positive]="balance() >= 0" [class.negative]="balance() < 0">
+        {{ formatCurrency(balance()) }}
+      </div>
+      <div class="stat-badge up">
+        {{ savingsRate() | number:'1.1-1' }}% savings rate
+      </div>
+    </div>
+
+    <div class="stat-card income-card">
+      <div class="stat-label">Total Income</div>
+      <div class="stat-value num income">{{ formatCurrency(totalIncome()) }}</div>
+      <div class="stat-meta">{{ transactions().length }} transactions total</div>
+    </div>
+
+    <div class="stat-card expense-card">
+      <div class="stat-label">Total Expenses</div>
+      <div class="stat-value num expense">{{ formatCurrency(totalExpenses()) }}</div>
+      <div class="stat-meta">across {{ topCategories().length }} categories</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-label">Transaction Count</div>
+      <div class="stat-value num accent">{{ transactions().length }}</div>
+      <div class="stat-meta">all time</div>
+    </div>
+  </div>
+
+  <!-- ─── Charts Row ─────────────────────────────────────────────────────── -->
+  <div class="charts-row">
+    <!-- Doughnut -->
+    <div class="chart-card donut-card">
+      <div class="card-header">
+        <h2 class="card-title">Spending by Category</h2>
+      </div>
+      <div class="donut-body">
+        <div class="donut-wrap">
+          <canvas #donutCanvas></canvas>
+          <div class="donut-center">
+            <span class="donut-label">Expenses</span>
+            <span class="donut-total num">{{ formatCurrency(totalExpenses()) }}</span>
+          </div>
+        </div>
+        <div class="donut-legend">
+          @for (cat of topCategories(); track cat.cat) {
+            <div class="legend-row">
+              <span class="legend-dot" [style.background]="cat.color"></span>
+              <span class="legend-name">{{ cat.cat }}</span>
+              <span class="legend-pct num">{{ cat.pct | number:'1.1-1' }}%</span>
+              <span class="legend-amt num">{{ formatCurrency(cat.amt) }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Bar -->
+    <div class="chart-card bar-card">
+      <div class="card-header">
+        <h2 class="card-title">Monthly Overview</h2>
+        <div class="chart-legend-inline">
+          <span class="ci-dot" style="background: rgba(16,185,129,0.75)"></span><span>Income</span>
+          <span class="ci-dot" style="background: rgba(239,68,68,0.75)"></span><span>Expenses</span>
+        </div>
+      </div>
+      <div class="bar-wrap">
+        <canvas #barCanvas></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── Recent Transactions ────────────────────────────────────────────── -->
+  <div class="recent-card">
+    <div class="card-header">
+      <h2 class="card-title">Recent Transactions</h2>
+      <a routerLink="/transactions" class="view-all-link">View all →</a>
+    </div>
+    <table class="txn-table">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Category</th>
+          <th>Date</th>
+          <th>Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (t of recent(); track t.id) {
+          <tr>
+            <td>
+              <span class="type-pill" [class.income-pill]="t.type==='income'" [class.expense-pill]="t.type==='expense'">
+                {{ t.type === 'income' ? '+' : '−' }}
+              </span>
+              {{ t.title }}
+            </td>
+            <td><span class="cat-tag">{{ t.category }}</span></td>
+            <td class="num muted">{{ t.date }}</td>
+            <td class="num" [class.income]="t.type==='income'" [class.expense]="t.type==='expense'">
+              {{ t.type === 'income' ? '+' : '−' }}{{ formatCurrency(t.amount) }}
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+</div>

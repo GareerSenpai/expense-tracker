@@ -1,0 +1,104 @@
+@if (visible) {
+  <div class="overlay" (click)="cancel()">
+    <div class="modal" (click)="$event.stopPropagation()">
+
+      <div class="modal-header">
+        <h2 class="modal-title">{{ isEditing ? 'Edit Transaction' : 'New Transaction' }}</h2>
+        <button class="close-btn" (click)="cancel()">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M2 2L14 14M14 2L2 14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="submit()" class="modal-body">
+
+        <!-- Type toggle -->
+        <div class="field">
+          <label class="field-label">Transaction Type</label>
+          <div class="type-toggle">
+            <button type="button" class="type-btn"
+              [class.active-expense]="typeVal === 'expense'"
+              (click)="form.get('type')?.setValue('expense'); onTypeChange()">
+              Expense
+            </button>
+            <button type="button" class="type-btn"
+              [class.active-income]="typeVal === 'income'"
+              (click)="form.get('type')?.setValue('income'); onTypeChange()">
+              Income
+            </button>
+          </div>
+        </div>
+
+        <!-- Title -->
+        <div class="field">
+          <label class="field-label" for="title">Title <span class="required">*</span></label>
+          <input id="title" type="text" class="field-input"
+            [class.error]="isInvalid('title')"
+            formControlName="title" placeholder="e.g. Grocery shopping">
+          @if (isInvalid('title')) {
+            <span class="field-error">Title is required (min 2 chars)</span>
+          }
+        </div>
+
+        <!-- Amount -->
+        <div class="field">
+          <label class="field-label" for="amount">Amount (USD) <span class="required">*</span></label>
+          <div class="input-prefix-wrap">
+            <span class="input-prefix">$</span>
+            <input id="amount" type="number" class="field-input prefixed"
+              [class.error]="isInvalid('amount')"
+              formControlName="amount" placeholder="0.00" step="0.01" min="0.01">
+          </div>
+          @if (isInvalid('amount')) {
+            <span class="field-error">Enter a valid amount greater than 0</span>
+          }
+        </div>
+
+        <!-- Category -->
+        <div class="field">
+          <label class="field-label" for="category">Category <span class="required">*</span></label>
+          <select id="category" class="field-input"
+            [class.error]="isInvalid('category')"
+            formControlName="category">
+            <option value="" disabled>Select a category</option>
+            @for (cat of categories; track cat) {
+              <option [value]="cat">{{ cat }}</option>
+            }
+          </select>
+          @if (isInvalid('category')) {
+            <span class="field-error">Category is required</span>
+          }
+        </div>
+
+        <!-- Date -->
+        <div class="field">
+          <label class="field-label" for="date">Date <span class="required">*</span></label>
+          <input id="date" type="date" class="field-input"
+            [class.error]="isInvalid('date')"
+            formControlName="date">
+          @if (isInvalid('date')) {
+            <span class="field-error">Date is required</span>
+          }
+        </div>
+
+        <!-- Notes -->
+        <div class="field">
+          <label class="field-label" for="notes">Notes <span class="optional">(optional)</span></label>
+          <textarea id="notes" class="field-input field-textarea"
+            formControlName="notes" rows="2"
+            placeholder="Any additional details..."></textarea>
+        </div>
+
+        <!-- Actions -->
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" (click)="cancel()">Cancel</button>
+          <button type="submit" class="btn-save" [class.income-btn]="typeVal==='income'">
+            {{ isEditing ? 'Save Changes' : 'Add Transaction' }}
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+}

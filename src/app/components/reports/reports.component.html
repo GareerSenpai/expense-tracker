@@ -1,0 +1,135 @@
+<div class="page">
+
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Reports</h1>
+      <p class="page-subtitle">Visual analysis of your financial activity</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-outline" (click)="exportCSV()">Export CSV</button>
+      <button class="btn-outline accent" (click)="exportPDF()">Export PDF</button>
+    </div>
+  </div>
+
+  <!-- ─── Controls ──────────────────────────────────────────────────────────── -->
+  <div class="controls-bar">
+    <div class="period-tabs">
+      <button class="tab-btn" [class.active]="period()==='monthly'" (click)="period.set('monthly'); rebuildCharts()">Monthly</button>
+      <button class="tab-btn" [class.active]="period()==='weekly'"  (click)="period.set('weekly');  rebuildCharts()">Weekly</button>
+    </div>
+    <div class="year-select-wrap">
+      <label class="ctrl-label">Year</label>
+      <select class="ctrl-select"
+        [value]="activeYear()"
+        (change)="activeYear.set(+$any($event.target).value); rebuildCharts()">
+        <option value="2024">2024</option>
+        <option value="2025">2025</option>
+        <option value="2026">2026</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- ─── KPI Cards ─────────────────────────────────────────────────────────── -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">Total Income</div>
+      <div class="kpi-value income num">{{ formatCurrency(summaryStats().totalIncome) }}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Total Expenses</div>
+      <div class="kpi-value expense num">{{ formatCurrency(summaryStats().totalExpense) }}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Net Savings</div>
+      <div class="kpi-value num" [class.income]="summaryStats().netSavings >= 0" [class.expense]="summaryStats().netSavings < 0">
+        {{ formatCurrency(summaryStats().netSavings) }}
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Avg {{ period() === 'monthly' ? 'Monthly' : 'Weekly' }} Expense</div>
+      <div class="kpi-value accent num">{{ formatCurrency(summaryStats().avgExpense) }}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Best Period</div>
+      <div class="kpi-value accent">{{ summaryStats().bestPeriod }}</div>
+    </div>
+  </div>
+
+  <!-- ─── Income vs Expenses Chart ──────────────────────────────────────────── -->
+  <div class="chart-card">
+    <div class="card-header">
+      <h2 class="card-title">{{ period() === 'monthly' ? 'Monthly' : 'Weekly' }} Income vs Expenses</h2>
+      <div class="legend-inline">
+        <span class="leg-dot" style="background: rgba(16,185,129,0.7)"></span><span>Income</span>
+        <span class="leg-dot" style="background: rgba(239,68,68,0.7)"></span><span>Expenses</span>
+      </div>
+    </div>
+    <div class="chart-wrap tall">
+      <canvas #trendCanvas></canvas>
+    </div>
+  </div>
+
+  <!-- ─── Bottom Two Charts ─────────────────────────────────────────────────── -->
+  <div class="charts-duo">
+
+    <!-- Category Breakdown -->
+    <div class="chart-card">
+      <div class="card-header">
+        <h2 class="card-title">Expense by Category</h2>
+      </div>
+      <div class="chart-wrap" [style.height.px]="categoryBreakdown().slice(0,8).length * 40 + 40">
+        <canvas #catCanvas></canvas>
+      </div>
+    </div>
+
+    <!-- Net Savings Trend -->
+    <div class="chart-card">
+      <div class="card-header">
+        <h2 class="card-title">Net Savings Trend</h2>
+        <div class="legend-inline">
+          <span class="leg-dot" style="background: #f59e0b"></span><span>Net</span>
+        </div>
+      </div>
+      <div class="chart-wrap">
+        <canvas #incExpCanvas></canvas>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ─── Category Table ────────────────────────────────────────────────────── -->
+  <div class="table-card">
+    <div class="card-header">
+      <h2 class="card-title">Category Detail</h2>
+      <span class="muted-text">{{ activeYear() }}</span>
+    </div>
+    <table class="cat-table">
+      <thead>
+        <tr>
+          <th>Category</th>
+          <th class="text-right">Amount</th>
+          <th class="text-right">% of Total</th>
+          <th>Breakdown</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (cat of categoryBreakdown(); track cat.cat) {
+          <tr>
+            <td>
+              <span class="cat-dot" [style.background]="cat.color"></span>
+              {{ cat.cat }}
+            </td>
+            <td class="num text-right expense">{{ formatCurrency(cat.amt) }}</td>
+            <td class="num text-right muted">{{ cat.pct | number:'1.1-1' }}%</td>
+            <td class="bar-cell">
+              <div class="bar-track">
+                <div class="bar-fill" [style.width.%]="cat.pct" [style.background]="cat.color"></div>
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+</div>
