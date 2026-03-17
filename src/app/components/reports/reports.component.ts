@@ -196,7 +196,7 @@ export class ReportsComponent implements AfterViewInit, OnDestroy {
             grid: { color: 'rgba(255,255,255,0.04)' },
             ticks: {
               color: '#7a84a0',
-              callback: (v) => '$' + Number(v).toLocaleString(),
+              callback: (v) => 'Rs. ' + Number(v).toLocaleString(),
             },
             border: { color: 'rgba(255,255,255,0.07)' },
           },
@@ -241,7 +241,7 @@ export class ReportsComponent implements AfterViewInit, OnDestroy {
             grid: { color: 'rgba(255,255,255,0.04)' },
             ticks: {
               color: '#7a84a0',
-              callback: (v) => '$' + Number(v).toLocaleString(),
+              callback: (v) => 'Rs. ' + Number(v).toLocaleString(),
             },
             border: { color: 'rgba(255,255,255,0.07)' },
           },
@@ -300,7 +300,7 @@ export class ReportsComponent implements AfterViewInit, OnDestroy {
             grid: { color: 'rgba(255,255,255,0.04)' },
             ticks: {
               color: '#7a84a0',
-              callback: (v) => '$' + Number(v).toLocaleString(),
+              callback: (v) => 'Rs. ' + Number(v).toLocaleString(),
             },
             border: { color: 'rgba(255,255,255,0.07)' },
           },
