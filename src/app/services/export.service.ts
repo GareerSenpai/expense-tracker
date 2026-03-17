@@ -4,7 +4,14 @@ import { Transaction } from '../models/transaction.model';
 @Injectable({ providedIn: 'root' })
 export class ExportService {
   exportToCSV(transactions: Transaction[], filename = 'transactions'): void {
-    const headers = ['Date', 'Title', 'Category', 'Type', 'Amount', 'Notes'];
+    const headers = [
+      'Date',
+      'Title',
+      'Category',
+      'Type',
+      'Amount (Rs.)',
+      'Notes',
+    ];
     const rows = transactions
       .sort((a, b) => a.date.localeCompare(b.date))
       .map((t) => [
@@ -57,7 +64,7 @@ export class ExportService {
         doc.setTextColor(10, 100, 60);
         doc.text('Income', 41, 53, { align: 'center' });
         doc.setFont('helvetica', 'bold');
-        doc.text('Rs. ' + totalIncome.toFixed(2), 41, 59, { align: 'center' });
+        doc.text(totalIncome.toFixed(2), 41, 59, { align: 'center' });
 
         doc.setFillColor(252, 232, 232);
         doc.roundedRect(74, 46, 54, 16, 3, 3, 'F');
@@ -65,7 +72,7 @@ export class ExportService {
         doc.setTextColor(139, 30, 30);
         doc.text('Expenses', 101, 53, { align: 'center' });
         doc.setFont('helvetica', 'bold');
-        doc.text('Rs. ' + totalExpense.toFixed(2), 101, 59, {
+        doc.text(totalExpense.toFixed(2), 101, 59, {
           align: 'center',
         });
 
@@ -84,16 +91,18 @@ export class ExportService {
         );
         doc.text('Net Balance', 161, 53, { align: 'center' });
         doc.setFont('helvetica', 'bold');
-        doc.text('Rs. ' + net.toFixed(2), 161, 59, { align: 'center' });
+        doc.text(net.toFixed(2), 161, 59, { align: 'center' });
 
         autoTable(doc, {
-          head: [['Date', 'Title', 'Category', 'Type', 'Amount', 'Notes']],
+          head: [
+            ['Date', 'Title', 'Category', 'Type', 'Amount (Rs.)', 'Notes'],
+          ],
           body: sorted.map((t) => [
             t.date,
             t.title,
             t.category,
             t.type.charAt(0).toUpperCase() + t.type.slice(1),
-            'Rs. ' + t.amount.toFixed(2),
+            t.amount.toFixed(2),
             t.notes || '',
           ]),
           startY: 72,

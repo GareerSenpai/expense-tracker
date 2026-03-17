@@ -4,7 +4,11 @@ import { FormsModule } from '@angular/forms';
 import { TransactionService } from '../../services/transaction.service';
 import { ExportService } from '../../services/export.service';
 import { TransactionFormComponent } from '../transaction-form/transaction-form.component';
-import { Transaction, EXPENSE_CATEGORIES, INCOME_CATEGORIES } from '../../models/transaction.model';
+import {
+  Transaction,
+  EXPENSE_CATEGORIES,
+  INCOME_CATEGORIES,
+} from '../../models/transaction.model';
 
 type SortField = 'date' | 'amount' | 'title';
 type SortDir = 'asc' | 'desc';
@@ -14,21 +18,21 @@ type SortDir = 'asc' | 'desc';
   standalone: true,
   imports: [CommonModule, FormsModule, TransactionFormComponent],
   templateUrl: './transactions.component.html',
-  styleUrl: './transactions.component.scss'
+  styleUrl: './transactions.component.scss',
 })
 export class TransactionsComponent {
-  svc    = inject(TransactionService);
+  svc = inject(TransactionService);
   private expSvc = inject(ExportService);
 
   // ─── Filter state ─────────────────────────────────────────────────────────
-  search    = signal('');
+  search = signal('');
   typeFilter = signal<'all' | 'income' | 'expense'>('all');
-  catFilter  = signal('');
-  sortField  = signal<SortField>('date');
-  sortDir    = signal<SortDir>('desc');
+  catFilter = signal('');
+  sortField = signal<SortField>('date');
+  sortDir = signal<SortDir>('desc');
 
   // ─── Modal state ─────────────────────────────────────────────────────────
-  showForm        = signal(false);
+  showForm = signal(false);
   editTransaction = signal<Transaction | null>(null);
   deleteConfirmId = signal<string | null>(null);
 
@@ -36,21 +40,26 @@ export class TransactionsComponent {
 
   filtered = computed(() => {
     let list = [...this.svc.transactions()];
-    const q   = this.search().toLowerCase().trim();
+    const q = this.search().toLowerCase().trim();
     const typ = this.typeFilter();
     const cat = this.catFilter();
 
-    if (q)   list = list.filter(t => t.title.toLowerCase().includes(q) || t.category.toLowerCase().includes(q));
-    if (typ !== 'all') list = list.filter(t => t.type === typ);
-    if (cat) list = list.filter(t => t.category === cat);
+    if (q)
+      list = list.filter(
+        (t) =>
+          t.title.toLowerCase().includes(q) ||
+          t.category.toLowerCase().includes(q),
+      );
+    if (typ !== 'all') list = list.filter((t) => t.type === typ);
+    if (cat) list = list.filter((t) => t.category === cat);
 
     const field = this.sortField();
-    const dir   = this.sortDir() === 'asc' ? 1 : -1;
+    const dir = this.sortDir() === 'asc' ? 1 : -1;
 
     list.sort((a, b) => {
-      if (field === 'date')   return dir * a.date.localeCompare(b.date);
+      if (field === 'date') return dir * a.date.localeCompare(b.date);
       if (field === 'amount') return dir * (a.amount - b.amount);
-      if (field === 'title')  return dir * a.title.localeCompare(b.title);
+      if (field === 'title') return dir * a.title.localeCompare(b.title);
       return 0;
     });
 
@@ -58,9 +67,13 @@ export class TransactionsComponent {
   });
 
   totalFiltered = computed(() =>
-    this.filtered().reduce((s, t) =>
-      t.type === 'income' ? { ...s, income: s.income + t.amount } : { ...s, expense: s.expense + t.amount },
-      { income: 0, expense: 0 })
+    this.filtered().reduce(
+      (s, t) =>
+        t.type === 'income'
+          ? { ...s, income: s.income + t.amount }
+          : { ...s, expense: s.expense + t.amount },
+      { income: 0, expense: 0 },
+    ),
   );
 
   openAdd(): void {
@@ -105,7 +118,7 @@ export class TransactionsComponent {
 
   setSort(field: SortField): void {
     if (this.sortField() === field) {
-      this.sortDir.update(d => d === 'asc' ? 'desc' : 'asc');
+      this.sortDir.update((d) => (d === 'asc' ? 'desc' : 'asc'));
     } else {
       this.sortField.set(field);
       this.sortDir.set('desc');
@@ -127,6 +140,9 @@ export class TransactionsComponent {
   }
 
   formatCurrency(n: number): string {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(n);
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+    }).format(n);
   }
 }
